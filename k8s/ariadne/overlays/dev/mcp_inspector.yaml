@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-researcher
+spec:
+  template:
+    spec:
+      containers:
+        - name: mcp-inspector
+          image: ghcr.io/modelcontextprotocol/inspector:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config /etc/mcp-inspector/mcp_inspector.json
+          env:
+            - name: MCP_PROXY_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-inspector-secret
+                  key: MCP_PROXY_AUTH_TOKEN
+          volumeMounts:
+            - name: mcp-inspector-config
+              mountPath: /etc/mcp-inspector
+              readOnly: true
+      volumes:
+        - name: mcp-inspector-config
+          configMap:
+            name: mcp-inspector-config

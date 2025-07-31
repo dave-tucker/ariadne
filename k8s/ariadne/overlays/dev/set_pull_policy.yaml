@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-researcher
+spec:
+  template:
+    spec:
+      containers:
+        - name: network-researcher
+          imagePullPolicy: IfNotPresent
+        - name: ovs-vswitch-mcp
+          imagePullPolicy: IfNotPresent
+        - name: ovn-nbdb-mcp
+          imagePullPolicy: IfNotPresent
+        - name: ovn-sbdb-mcp
+          imagePullPolicy: IfNotPresent
+        - name: ovn-ic-nbdb-mcp
+          imagePullPolicy: IfNotPresent
+        - name: ovn-ic-sbdb-mcp
+          imagePullPolicy: IfNotPresent

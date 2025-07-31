@@ -1,0 +1,19 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+resources:
+  - ns-blue.yaml
+  - ns-green.yaml
+  - ns-red.yaml
+  - ns-yellow.yaml
+  - udn-green.yaml
+  - udn-blue.yaml
+  - cudn-orange.yaml
+  - nginx-blue.yaml
+  - nginx-green.yaml
+  - nginx-red.yaml
+  - nginx-yellow.yaml
+  - networkpolicy.yaml
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/part-of: workload

@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+namespace: network-researcher
+configMapGenerator:
+  - name: network-researcher-config
+    behavior: merge
+    literals:
+      - AGENT_MODEL_ENDPOINT_URL=http://192.168.2.79:11434/v1
+      - AGENT_MODEL_NAME=llama3.1:8b
+      - AGENT_MODEL_API_KEY=dummy
+      - RESEARCHER_MODEL_ENDPOINT_URL=http://192.168.2.79:11434/v1
+      - RESEARCHER_MODEL_NAME=qwen3:8b
+      - RESEARCHER_MODEL_API_KEY=dummy
+  - name: mcp-inspector-config
+    files:
+      - ./files/mcp_inspector.json
+secretGenerator:
+  - name: mcp-inspector-secret
+    literals:
+      - MCP_PROXY_AUTH_TOKEN=69a65a411810f37eb02b1280ee934748702c91322bd3d739430a92684c7a160f
+patches:
+  - path: set_pull_policy.yaml
+  - path: mcp_inspector.yaml
+  - path: remove_ovn_ic_containers.yaml

@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: network-researcher
+resources:
+  - service.yaml
+  - daemonset.yaml
+configMapGenerator:
+  - name: network-researcher-config
+    literals:
+      - AGENT_MODEL_ENDPOINT_URL=http://127.0.0.1:11434/v1
+      - AGENT_MODEL_NAME=llama3.1:8b
+      - AGENT_MODEL_API_KEY=dummy
+      - RESEARCHER_MODEL_ENDPOINT_URL=http://127.0.0.1:11434/v1
+      - RESEARCHER_MODEL_NAME=granite3.3:8b
+      - RESEARCHER_MODEL_API_KEY=dummy
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/part-of: network-researcher

@@ -1,0 +1,182 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-researcher
+spec:
+  template:
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+      containers:
+      # OVS vSwitchd MCP Server
+      - name: ovs-vswitch-mcp
+        image: network-researcher/ovsdb-mcp:latest
+        args:
+        - "-host"
+        - "0.0.0.0"
+        - "-port"
+        - "8080"
+        volumeMounts:
+        - name: ovs-socket
+          mountPath: /var/run/openvswitch
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      # OVN Northbound MCP Server
+      - name: ovn-nbdb-mcp
+        image: network-researcher/ovn-nbdb-mcp:latest
+        args:
+        - "-host"
+        - "0.0.0.0"
+        - "-port"
+        - "8081"
+        volumeMounts:
+        - name: ovn-socket
+          mountPath: /var/run/ovn
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      # OVN Southbound MCP Server
+      - name: ovn-sbdb-mcp
+        image: network-researcher/ovn-sbdb-mcp:latest
+        args:
+        - "-host"
+        - "0.0.0.0"
+        - "-port"
+        - "8082"
+        volumeMounts:
+        - name: ovn-socket
+          mountPath: /var/run/ovn
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      # OVN IC Northbound MCP Server
+      - name: ovn-ic-nbdb-mcp
+        image: network-researcher/ovn-ic-nbdb-mcp:latest
+        args:
+        - "-host"
+        - "0.0.0.0"
+        - "-port"
+        - "8083"
+        volumeMounts:
+        - name: ovn-socket
+          mountPath: /var/run/ovn
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      # OVN IC Southbound MCP Server
+      - name: ovn-ic-sbdb-mcp
+        image: network-researcher/ovn-ic-sbdb-mcp:latest
+        args:
+        - "-host"
+        - "0.0.0.0"
+        - "-port"
+        - "8084"
+        volumeMounts:
+        - name: ovn-socket
+          mountPath: /var/run/ovn
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      # Network Expert Agent
+      - name: network-researcher
+        image: network-researcher/network-researcher:latest
+        ports:
+        - containerPort: 8085
+          name: a2a-server
+        - containerPort: 8086
+          name: health-check
+        env:
+        # OpenAI-compatible model configuration from ConfigMap
+        - name: RESEARCHER_MODEL_ENDPOINT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: network-researcher-config
+              key: RESEARCHER_MODEL_ENDPOINT_URL
+        - name: RESEARCHER_MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: network-researcher-config
+              key: RESEARCHER_MODEL_NAME
+        # MCP Server URLs (using localhost since all containers are in the same pod)
+        - name: MCP_OVS_VSWITCHD_URL
+          value: "http://localhost:8080"
+        - name: MCP_OVN_NB_URL
+          value: "http://localhost:8081"
+        - name: MCP_OVN_SB_URL
+          value: "http://localhost:8082"
+        - name: MCP_OVN_IC_NB_URL
+          value: "http://localhost:8083"
+        - name: MCP_OVN_IC_SB_URL
+          value: "http://localhost:8084"
+        # A2A Server configuration
+        - name: A2A_HOST
+          value: "0.0.0.0"
+        - name: A2A_PORT
+          value: "8085"
+        stdin: true
+        tty: true
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      volumes:
+      - name: ovs-socket
+        hostPath:
+          path: /var/run/openvswitch
+          type: Directory
+      - name: ovn-socket
+        hostPath:
+          path: /var/run/openvswitch
+          type: Directory

@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-researcher
+spec:
+  template:
+    spec:
+      containers:
+        - $patch: delete
+          name: ovn-ic-nbdb-mcp
+        - $patch: delete
+          name: ovn-ic-sbdb-mcp

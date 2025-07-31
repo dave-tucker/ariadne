@@ -1,0 +1,29 @@
+{
+    "mcpServers": {
+        "ovs-vswitchd": {
+            "type": "streamable-http",
+            "url": "http://localhost:8080",
+            "note": "Open vSwitch OVSDB MCP Server"
+        },
+        "ovn-nbdb-mcp": {
+            "type": "streamable-http",
+            "url": "http://localhost:8081",
+            "note": "OVN Northbound MCP Server"
+        },
+        "ovn-sbdb-mcp": {
+            "type": "streamable-http",
+            "url": "http://localhost:8082",
+            "note": "OVN Southbound MCP Server"
+        },
+        "ovn-ic-nbdb-mcp": {
+            "type": "streamable-http",
+            "url": "http://localhost:8083",
+            "note": "OVN IC Northbound MCP Server"
+        },
+        "ovn-ic-sbdb-mcp": {
+            "type": "streamable-http",
+            "url": "http://localhost:8084",
+            "note": "OVN IC Southbound MCP Server"
+        }
+    }
+}
